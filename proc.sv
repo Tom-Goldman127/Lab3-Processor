@@ -110,6 +110,8 @@ module proc (
             // ==========================================
             // TODO: Reset FSM FF implementation
             // ==========================================
+            Tstep_Q <= T0;
+            // ==========================================
         end else begin
             Tstep_Q <= Tstep_D;
         end
