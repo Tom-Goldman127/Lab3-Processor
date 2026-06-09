@@ -48,7 +48,7 @@ module proc (
                 // if I is mov or mvi we return to T0, otherwise we go to T2
                 if (I == 3'b000 || I == 3'b001) 
                     Tstep_D = T0;
-                else if (I == 3'010 || I == 3'011)
+                else if (I == 3'b010 || I == 3'b011)
                     Tstep_D = T2;
                 else
                     Tstep_D = T0; //preventing unknown state
@@ -172,6 +172,51 @@ module proc (
     // TODO: Complete the proc implementation 
 	//       based on the lab guidelines
     // ==========================================
+    regn #(.n(9)) reg_1 (.R(BusWires), .Rin(Rin[1]), .Clock(Clock), .Resetn(Resetn), .Q(R1));
+    regn #(.n(9)) reg_2 (.R(BusWires), .Rin(Rin[2]), .Clock(Clock), .Resetn(Resetn), .Q(R2));
+    regn #(.n(9)) reg_3 (.R(BusWires), .Rin(Rin[3]), .Clock(Clock), .Resetn(Resetn), .Q(R3));
+    regn #(.n(9)) reg_4 (.R(BusWires), .Rin(Rin[4]), .Clock(Clock), .Resetn(Resetn), .Q(R4));
+    regn #(.n(9)) reg_5 (.R(BusWires), .Rin(Rin[5]), .Clock(Clock), .Resetn(Resetn), .Q(R5));
+    regn #(.n(9)) reg_6 (.R(BusWires), .Rin(Rin[6]), .Clock(Clock), .Resetn(Resetn), .Q(R6));
+    regn #(.n(9)) reg_7 (.R(BusWires), .Rin(Rin[7]), .Clock(Clock), .Resetn(Resetn), .Q(R7));
+    // registers for A, G and IR
+    regn #(.n(9)) reg_A  (.R(BusWires), .Rin(Ain), .Clock(Clock), .Resetn(Resetn), .Q(A));
+    regn #(.n(9)) reg_G  (.R(ALU_Result), .Rin(Gin), .Clock(Clock), .Resetn(Resetn), .Q(G));
+    regn #(.n(9)) reg_IR (.R(DIN), .Rin(IRin), .Clock(Clock), .Resetn(Resetn), .Q(IR)); // IR is loaded directly from DIN
 
+    always_comb begin 
+        // BusWires is determined by the control signals. Only one of these signals should be active at a time.
+        if (DINout) BusWires = DIN;
+        else if (Gout) BusWires = G;
+        else if (Rout[0]) BusWires = R0;
+        else if (Rout[1]) BusWires = R1;
+        else if (Rout[2]) BusWires = R2;
+        else if (Rout[3]) BusWires = R3;
+        else if (Rout[4]) BusWires = R4;
+        else if (Rout[5]) BusWires = R5;
+        else if (Rout[6]) BusWires = R6;
+        else if (Rout[7]) BusWires = R7;
+        else BusWires = 9'b0; // default value when no output is selected
+    end
+
+    always_comb begin
+        case (I)
+            3'b010:  ALU_Result = A + BusWires; // if I is add, ALU_Result is the sum of A and the value on the bus
+            3'b011:  ALU_Result = A - BusWires; // if I is sub, ALU_Result is the difference of A and the value on the bus
+            3'b100: begin // Ones command
+                ALU_Result = 9'b0;
+                for (int i = 0; i < 9; i = i + 1) begin
+                    ALU_Result = ALU_Result + A[i];
+                end
+            end
+            3'b101: begin // specialMult command
+                // Math: X * 3.5 = X * 2 + X + X/2
+                // In hardware, multiplication by 2 is a left shift, and division by 2 is a right shift
+                ALU_Result = (A << 1) + A + (A >> 1);
+            end
+            default: ALU_Result = 9'b0; // default value when the instruction does not involve the ALU
+        endcase
+    end
+    // ==========================================
 endmodule
 
