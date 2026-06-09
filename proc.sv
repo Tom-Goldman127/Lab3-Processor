@@ -12,6 +12,19 @@ module proc (
     // ==========================================
     // TODO: declare variables 
     // ==========================================
+    logic [1:0] Tstep_D;
+    logic [1:0] Tstep_Q;
+    logic [7:0] Xreg, Yreg;
+    logic [8:0] IR;
+    logic [2:0] I;
+
+    //signals for Mux and Regs
+    logic DINout, Gout, IRin, Ain, Gin, AddSub;
+    logic [7:0] Rin, Rout;
+
+    // internal wires
+    logic [8:0] R0, R1, R2, R3, R4, R5, R6, R7, A, G, ALU_Result;
+    // =================================================================
 
 
     assign I = IR[8:6]; 
@@ -31,7 +44,24 @@ module proc (
             // ==========================================
             // TODO: Complete FSM implementation
             // ==========================================
-            
+            T1: begin
+                // if I is mov or mvi we return to T0, otherwise we go to T2
+                if (I == 3'b000 || I == 3'b001) 
+                    Tstep_D = T0;
+                else if (I == 3'010 || I == 3'011)
+                    Tstep_D = T2;
+                else
+                    Tstep_D = T0; //preventing unknown state
+            end
+
+            T2: begin
+                Tstep_D = T3;
+            end
+
+            T3: begin
+                Tstep_D = T0;
+            end
+            // ==========================================
             default: Tstep_D = T0;
         endcase
     end
