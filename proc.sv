@@ -71,7 +71,15 @@ module proc (
         // ==========================================
         // TODO: specify initial values 
         // ==========================================
-
+        IRin = 1'b0;
+        DINout = 1'b0;
+        Ain = 1'b0;
+        Gin = 1'b0;
+        Gout = 1'b0;
+        AddSub = 1'b0;
+        Rin = 8'b0;
+        Rout = 8'b0;
+        Done = 1'b0;
         case (Tstep_Q)
             T0: begin // Store DIN in IR in time step 0
                 IRin = 1'b1;
