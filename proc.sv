@@ -81,6 +81,8 @@ module proc (
         Rout = 8'b0;
         Done = 1'b0;
         case (Tstep_Q)
+         // ==========================================
+        
             T0: begin // Store DIN in IR in time step 0
                 IRin = 1'b1;
             end
@@ -89,6 +91,21 @@ module proc (
                 case (I)
                     // ==========================================
                     // TODO: Complete instruction decoding for T1
+
+                    3'b000: begin // mv
+                        Rout = Yreg; 
+                        Rin = Xreg; 
+                        Done = 1'b1;
+                    end
+                    3'b001: begin // mvi
+                        DINout = 1'b1; 
+                        Rin = Xreg; 
+                        Done = 1'b1;
+                    end
+                    3'b010, 3'b011, 3'b100, 3'b101: begin // add, sub, ones, specialMult
+                        Rout = Xreg; 
+                        Ain = 1'b1; 
+                    end
                     // ==========================================
                 endcase
             end
@@ -97,6 +114,18 @@ module proc (
                 case (I)
                     // ==========================================
                     // TODO: Complete instruction decoding for T2
+                    3'b010: begin // add
+                        Rout = Yreg;
+                        Gin = 1'b1;
+                    end
+                    3'b011: begin // sub
+                        Rout = Yreg;
+                        Gin = 1'b1;
+                        AddSub = 1'b1; // commit to subtraction in the ALU
+                    end
+                    3'b100, 3'b101: begin // ones, specialMult
+                        Gin = 1'b1; // load Yreg to G
+                    end
                     // ==========================================
                 endcase
             end
@@ -105,6 +134,16 @@ module proc (
                 case (I)
                     // ==========================================
                     // TODO: Complete instruction decoding for T3
+                    3'b010, 3'b011: begin // add, sub
+                        Gout = 1'b1;
+                        Rin = Xreg;
+                        Done = 1'b1;
+                    end
+                    3'b100, 3'b101: begin // ones, specialMult
+                        Gout = 1'b1;
+                        Rin = Yreg; 
+                        Done = 1'b1;
+                    end
                     // ==========================================
                 endcase
             end
@@ -118,7 +157,7 @@ module proc (
             // ==========================================
             // TODO: Reset FSM FF implementation
             // ==========================================
-            Tstep_Q <= T0;
+                Tstep_Q <= T0;
             // ==========================================
         end else begin
             Tstep_Q <= Tstep_D;
