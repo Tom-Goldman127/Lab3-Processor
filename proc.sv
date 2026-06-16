@@ -4,7 +4,7 @@ module proc (
     input  logic       Clock,
     input  logic       Run,
     output logic       Done,
-    output logic [8:0] BusWires
+    output logic [8:0] BusWires // לבדוק איפה מוסיפים סימן
 );
 
     parameter logic [1:0] T0 = 2'b00, T1 = 2'b01, T2 = 2'b10, T3 = 2'b11;
@@ -19,7 +19,8 @@ module proc (
     logic [2:0] I;
 
     //signals for Mux and Regs
-    logic DINout, Gout, IRin, Ain, Gin, AddSub;
+    logic DINout, Gout, IRin, Ain, Gin;
+    logic [1:0] AddSub; // signal to determine whether the ALU should perform addition or subtraction or other operations
     logic [7:0] Rin, Rout;
 
     // internal wires
@@ -96,13 +97,15 @@ module proc (
                         Rout = Yreg; 
                         Rin = Xreg; 
                         Done = 1'b1;
+                        addSub = 2'b00; // commit to addition in the ALU (though ALU is not used in this instruction, we set it to a known state)
+                        // לעשות את הaddSub בכל קייס
                     end
                     3'b001: begin // mvi
                         DINout = 1'b1; 
                         Rin = Xreg; 
                         Done = 1'b1;
                     end
-                    3'b010, 3'b011, 3'b100, 3'b101: begin // add, sub, ones, specialMult
+                    3'b010, 3'b011, 3'b100, 3'b101: begin // add, sub, ones, specialMult //להפריד כל אחד לקייסים
                         Rout = Xreg; 
                         Ain = 1'b1; 
                     end
@@ -201,7 +204,8 @@ module proc (
 
     always_comb begin
         case (I)
-            3'b010:  ALU_Result = A + BusWires; // if I is add, ALU_Result is the sum of A and the value on the bus
+            addSub = 2'b0 : ALU_Result = A + BusWires; // if I is add, ALU_Result is the sum of A and the value on the bus
+            // לעשות כמו שורה למעלה לכל קייס
             3'b011:  ALU_Result = A - BusWires; // if I is sub, ALU_Result is the difference of A and the value on the bus
             3'b100: begin // Ones command
                 ALU_Result = 9'b0;
@@ -212,7 +216,7 @@ module proc (
             3'b101: begin // specialMult command
                 // Math: X * 3.5 = X * 2 + X + X/2
                 // In hardware, multiplication by 2 is a left shift, and division by 2 is a right shift
-                ALU_Result = (A << 1) + A + (A >> 1);
+                ALU_Result = (A <<< 1) + A + (A >>> 1);
             end
             default: ALU_Result = 9'b0; // default value when the instruction does not involve the ALU
         endcase
