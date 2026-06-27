@@ -212,7 +212,7 @@ module proc (
             3'b101: begin // specialMult command
                 // Math: X * 3.5 = X * 2 + X + X/2
                 // In hardware, multiplication by 2 is a left shift, and division by 2 is a right shift
-                ALU_Result = (A << 1) + A + (A >>> 1);
+                ALU_Result = (A << 1) + A + {A[8], A[8:1]};
             end
             default: ALU_Result = 9'b0; // default value when the instruction does not involve the ALU
         endcase
