@@ -1,0 +1,38 @@
+# ==========================================
+# Quartus Prime Generated Files
+# ==========================================
+db/
+incremental_db/
+output_files/
+simulation/
+timing/
+greybox_tmp/
+slid_dir/
+*.qws
+*.rpt
+*.smsg
+*.summary
+*.done
+*.jdi
+*.pin
+*.bak
+*.qdf
+*.sof
+*.pof
+*.jam
+*.jbc
+
+# ==========================================
+# ModelSim / Questa Generated Files
+# ==========================================
+work/
+transcript
+*.wlf
+*.vstf
+modelsim.ini
+
+# ==========================================
+# OS Generated Files
+# ==========================================
+.DS_Store
+Thumbs.db
