@@ -102,7 +102,7 @@ module proc (
                         Rin = Xreg; 
                         Done = 1'b1;
                     end
-                    3'b010, 3'b011, 3'b100, 3'b101: begin // לעשות עוד קייס למולט וואנס כי הם כותבים לy
+                    3'b010, 3'b011, 3'b100, 3'b101: begin 
                         Rout = Xreg; 
                         Ain = 1'b1; 
                     end
@@ -211,7 +211,7 @@ module proc (
             end
             3'b101: begin // specialMult command
                 // Math: X * 3.5 = X * 2 + X + X/2
-                // In hardware, multiplication by 2 is a left shift, and division by 2 is a right shift
+                // In hardware, multiplication by 2 is a left shift, we are slicing to use less logic
                 ALU_Result = (A << 1) + A + {A[8], A[8:1]};
             end
             default: ALU_Result = 9'b0; // default value when the instruction does not involve the ALU
